@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/products")
 public class ProductController {
 
-
+    //Controller for the project
     @GetMapping
     public String home() {
         return "Welcome to Product Service!";
