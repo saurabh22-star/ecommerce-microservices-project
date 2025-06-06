@@ -1,8 +1,8 @@
 package com.ecommerce.ecommercehub.productmodule.services;
 
+import com.ecommerce.ecommercehub.productmodule.dtos.ProductRequestDto;
 import com.ecommerce.ecommercehub.productmodule.dtos.ProductDto;
 import com.ecommerce.ecommercehub.productmodule.models.Product;
-import org.springframework.stereotype.Service;
 
 import java.util.List;
 
@@ -18,4 +18,7 @@ public interface ProductService {
 
     ProductDto convertToDto(Product product);
 
+    Product addProduct(ProductRequestDto request);
+
+    Product updateProduct(ProductRequestDto updateRequest, Long productId);
 }
