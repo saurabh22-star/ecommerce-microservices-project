@@ -1,9 +1,13 @@
 package com.ecommerce.ecommercehub.productmodule.services;
 
+import com.ecommerce.ecommercehub.productmodule.dtos.ProductRequestDto;
 import com.ecommerce.ecommercehub.productmodule.dtos.ProductDto;
 import com.ecommerce.ecommercehub.productmodule.dtos.ProductImageDto;
+import com.ecommerce.ecommercehub.productmodule.exceptions.ProductAlreadyExistsException;
+import com.ecommerce.ecommercehub.productmodule.models.Category;
 import com.ecommerce.ecommercehub.productmodule.models.Image;
 import com.ecommerce.ecommercehub.productmodule.models.Product;
+import com.ecommerce.ecommercehub.productmodule.repositories.CategoryRepo;
 import com.ecommerce.ecommercehub.productmodule.repositories.ImageRepo;
 import com.ecommerce.ecommercehub.productmodule.repositories.ProductRepo;
 import com.ecommerce.ecommercehub.utility.exceptions.ResourceNotFoundException;
@@ -21,6 +25,7 @@ public class ProductServiceImpl implements ProductService {
     private final ProductRepo productRepo;
     private final ModelMapper modelMapper;
     private final ImageRepo imageRepo;
+    private final CategoryRepo categoryRepo;
 
     @Override
     public Product getProductById(Long id) {
@@ -42,10 +47,68 @@ public class ProductServiceImpl implements ProductService {
     public ProductDto convertToDto(Product product) {
         ProductDto productDto = modelMapper.map(product, ProductDto.class);
         List<Image> images = imageRepo.findByProductId(product.getId());
-        List<ProductImageDto> imageDtos = images.stream()
+        List<ProductImageDto> imageDtoList = images.stream()
                 .map(image -> modelMapper.map(image, ProductImageDto.class))
                 .toList();
-        productDto.setImageList(imageDtos);
+        productDto.setImageList(imageDtoList);
         return productDto;
     }
+
+    @Override
+    public Product addProduct(ProductRequestDto request) {
+        if (productExists(request.getTitle(), request.getManufacturer())) {
+            throw new ProductAlreadyExistsException(
+                String.format("Product '%s' by brand '%s' already exists. Please update the existing product instead.", request.getTitle(), request.getManufacturer())
+            );
+        }
+        Category category = categoryRepo.findByName(request.getCategoryRef().getTitle());
+        if (category == null) {
+            category = new Category(request.getCategoryRef().getTitle());
+            category = categoryRepo.save(category);
+        }
+        request.setCategoryRef(category);
+        return productRepo.save(createProduct(request, category));
+    }
+
+    @Override
+    public Product updateProduct(ProductRequestDto updateRequest, Long productId) {
+        return productRepo.findById(productId)
+                .map(product -> updateExistingProduct(product, updateRequest))
+                .map(productRepo::save)
+                .orElseThrow(() -> new ResourceNotFoundException("Product not found!"));
+    }
+
+    private Product updateExistingProduct(Product existingProduct, ProductRequestDto request) {
+        existingProduct.setTitle(request.getTitle());
+        existingProduct.setManufacturer(request.getManufacturer());
+        existingProduct.setCost(request.getCost());
+        existingProduct.setStockCount(request.getStockCount());
+        existingProduct.setDetails(request.getDetails());
+
+        Category category = categoryRepo.findByName(request.getCategoryRef().getTitle());
+        existingProduct.setCategoryRef(category);
+        return  existingProduct;
+
+    }
+
+    private Product createProduct(ProductRequestDto request, Category category) {
+           return new Product(
+                    request.getTitle(),
+                    request.getManufacturer(),
+                    request.getCost(),
+                    request.getStockCount(),
+                    request.getDetails(),
+                    category
+            );
+
+
+    }
+
+    private boolean productExists(String title, String manufacturer) {
+
+        return productRepo.existsByNameAndBrand(title, manufacturer);
+
+    }
+
+
 }
