@@ -67,4 +67,66 @@ public class ProductController {
         }
     }
 
+    //@PreAuthorize("hasRole('ROLE_ADMIN')")
+    @DeleteMapping("/product/{productId}/delete")
+    public ResponseEntity<CommonApiResponse> deleteProduct(@PathVariable Long productId) {
+        try {
+            productService.deleteProductById(productId);
+            return ResponseEntity.ok(new CommonApiResponse("Product deleted successfully!", productId));
+        } catch (ResourceNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new CommonApiResponse(e.getMessage(), null));
+        }
+    }
+
+    @GetMapping("/products/by/manufacturer-and-title")
+    public ResponseEntity<CommonApiResponse> fetchProductsByManufacturerAndTitle(@RequestParam String manufacturer, @RequestParam String title) {
+        try {
+            List<Product> productList = productService.getProductsByManufacturerAndTitle(manufacturer, title);
+            if (productList == null || productList.isEmpty()) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .body(new CommonApiResponse("No products found for the given manufacturer and title.", null));
+            }
+            List<ProductDto> productDtos = productService.getConvertedProducts(productList);
+            return ResponseEntity.ok(new CommonApiResponse("Products retrieved successfully.", productDtos));
+        } catch (Exception ex) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new CommonApiResponse("An error occurred: " + ex.getMessage(), null));
+        }
+    }
+
+
+    @GetMapping("/products/by/categoryRef-and-manufacturer")
+    public ResponseEntity<CommonApiResponse> fetchProductsByCategoryAndBrand(@RequestParam String categoryRef, @RequestParam String manufacturer) {
+        try {
+            List<Product> productList = productService.getProductsByCategoryRefAndManufacturer(categoryRef, manufacturer);
+            if (productList == null || productList.isEmpty()) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .body(new CommonApiResponse("No products found for the specified category and brand.", null));
+            }
+            List<ProductDto> productDtos = productService.getConvertedProducts(productList);
+            return ResponseEntity.ok(new CommonApiResponse("Products fetched successfully.", productDtos));
+        } catch (Exception ex) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new CommonApiResponse("Failed to fetch products: " + ex.getMessage(), null));
+        }
+    }
+
+
+    @GetMapping("/products/{title}/products")
+    public ResponseEntity<CommonApiResponse> fetchProductsByTitle(@PathVariable String title) {
+        try {
+            List<Product> productList = productService.getProductsByTitle(title);
+            if (productList == null || productList.isEmpty()) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .body(new CommonApiResponse("No products found with the specified title.", null));
+            }
+            List<ProductDto> productDtos = productService.getConvertedProducts(productList);
+            return ResponseEntity.ok(new CommonApiResponse("Products retrieved successfully.", productDtos));
+        } catch (Exception ex) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new CommonApiResponse("An error occurred: " + ex.getMessage(), null));
+        }
+    }
+
+
 }

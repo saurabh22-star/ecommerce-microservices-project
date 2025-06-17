@@ -17,6 +17,7 @@ import org.modelmapper.ModelMapper;
 
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -72,10 +73,12 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public Product updateProduct(ProductRequestDto updateRequest, Long productId) {
-        return productRepo.findById(productId)
-                .map(product -> updateExistingProduct(product, updateRequest))
-                .map(productRepo::save)
-                .orElseThrow(() -> new ResourceNotFoundException("Product not found!"));
+        Optional<Product> productOptional = productRepo.findById(productId);
+        if (productOptional.isEmpty()) {
+            throw new ResourceNotFoundException("Product not found!");
+        }
+        Product productToUpdate = updateExistingProduct(productOptional.get(), updateRequest);
+        return productRepo.save(productToUpdate);
     }
 
     private Product updateExistingProduct(Product existingProduct, ProductRequestDto request) {
@@ -106,8 +109,34 @@ public class ProductServiceImpl implements ProductService {
 
     private boolean productExists(String title, String manufacturer) {
 
-        return productRepo.existsByNameAndBrand(title, manufacturer);
+        return productRepo.existsByTitleAndManufacturer(title, manufacturer);
 
+    }
+
+
+    @Override
+    public void deleteProductById(Long id) {
+    Optional<Product> productOpt = productRepo.findById(id);
+    if (productOpt.isPresent()) {
+        productRepo.delete(productOpt.get());
+    } else {
+        throw new ResourceNotFoundException("Product not found!");
+    }
+}
+
+    @Override
+    public List<Product> getProductsByManufacturerAndTitle(String manufacturer, String title) {
+        return productRepo.findByManufacturerAndTitle(manufacturer, title);
+    }
+
+    @Override
+    public List<Product> getProductsByCategoryRefAndManufacturer(String categoryRef, String manufacturer) {
+      return productRepo.findByCategoryRefAndManufacturer(categoryRef, manufacturer);
+    }
+
+    @Override
+    public List<Product> getProductsByTitle(String title) {
+        return productRepo.findByTitle(title);
     }
 
 

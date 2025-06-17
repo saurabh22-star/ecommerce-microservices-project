@@ -21,4 +21,12 @@ public interface ProductService {
     Product addProduct(ProductRequestDto request);
 
     Product updateProduct(ProductRequestDto updateRequest, Long productId);
+
+    void deleteProductById(Long productId);
+
+    List<Product> getProductsByManufacturerAndTitle(String manufacturer, String title);
+
+    List<Product> getProductsByCategoryRefAndManufacturer(String categoryRef, String manufacturer);
+
+    List<Product> getProductsByTitle(String title);
 }
