@@ -26,7 +26,7 @@ public class Product extends BaseModel {
     @JoinColumn(name = "cat_id")
     private Category categoryRef;
 
-    @OneToMany(mappedBy = "productItem", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Image> imageList;
 
     public Product(String title, String manufacturer, BigDecimal cost, int stockCount, String details, Category categoryRef) {

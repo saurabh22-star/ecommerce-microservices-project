@@ -23,6 +23,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class ProductServiceImpl implements ProductService {
 
+    
     private final ProductRepo productRepo;
     private final ModelMapper modelMapper;
     private final ImageRepo imageRepo;
@@ -137,6 +138,21 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public List<Product> getProductsByTitle(String title) {
         return productRepo.findByTitle(title);
+    }
+
+    @Override
+    public List<Product> getProductsByManufacturer(String manufacturer) {
+        return productRepo.findByManufacturer(manufacturer);
+    }
+
+     @Override
+    public List<Product> getProductsByCategoryRef(String category) {
+        return productRepo.findByCategoryRef(category);
+    }
+
+    @Override
+    public Long countProductsByManufacturerAndTitle(String manufacturer, String title) {
+        return productRepo.countProductsByManufacturerAndTitle(manufacturer, title);
     }
 
 

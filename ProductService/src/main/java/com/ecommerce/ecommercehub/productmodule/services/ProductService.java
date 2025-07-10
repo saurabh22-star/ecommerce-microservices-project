@@ -29,4 +29,10 @@ public interface ProductService {
     List<Product> getProductsByCategoryRefAndManufacturer(String categoryRef, String manufacturer);
 
     List<Product> getProductsByTitle(String title);
+
+    List<Product> getProductsByManufacturer(String manufacturer);
+
+    public List<Product> getProductsByCategoryRef(String categoryRef);
+
+    Long countProductsByManufacturerAndTitle(String manufacturer, String title);
 }

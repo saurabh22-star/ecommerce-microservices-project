@@ -24,6 +24,6 @@ public class Image extends BaseModel {
     private String url;
 
     @ManyToOne
-    @JoinColumn(name = "item_id")
+    @JoinColumn(name = "product_id")
     private Product product;
 }

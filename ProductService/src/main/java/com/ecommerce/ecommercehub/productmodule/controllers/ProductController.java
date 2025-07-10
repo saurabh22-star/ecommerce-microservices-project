@@ -96,7 +96,7 @@ public class ProductController {
 
 
     @GetMapping("/products/by/categoryRef-and-manufacturer")
-    public ResponseEntity<CommonApiResponse> fetchProductsByCategoryAndBrand(@RequestParam String categoryRef, @RequestParam String manufacturer) {
+    public ResponseEntity<CommonApiResponse> fetchProductsByCategoryRefAndManufacturer(@RequestParam String categoryRef, @RequestParam String manufacturer) {
         try {
             List<Product> productList = productService.getProductsByCategoryRefAndManufacturer(categoryRef, manufacturer);
             if (productList == null || productList.isEmpty()) {
@@ -112,7 +112,7 @@ public class ProductController {
     }
 
 
-    @GetMapping("/products/{title}/products")
+    @GetMapping("/products/{title}/manufacturer")
     public ResponseEntity<CommonApiResponse> fetchProductsByTitle(@PathVariable String title) {
         try {
             List<Product> productList = productService.getProductsByTitle(title);
@@ -125,6 +125,46 @@ public class ProductController {
         } catch (Exception ex) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(new CommonApiResponse("An error occurred: " + ex.getMessage(), null));
+        }
+    }
+
+    @GetMapping("/product/by-manufacturer")
+    public ResponseEntity<CommonApiResponse> findProductsByManufacturer(@RequestParam String manufacturer) {
+        try {
+            List<Product> productList = productService.getProductsByManufacturer(manufacturer);
+            if (productList == null || productList.isEmpty()) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .body(new CommonApiResponse("No products available for the specified manufacturer.", null));
+            }
+            List<ProductDto> productDtoList = productService.getConvertedProducts(productList);
+            return ResponseEntity.ok(new CommonApiResponse("Products fetched successfully.", productDtoList));
+        } catch (Exception ex) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new CommonApiResponse("Error occurred: " + ex.getMessage(), null));
+        }
+    }
+
+    @GetMapping("/product/{category}/all/products")
+    public ResponseEntity<CommonApiResponse> findProductByCategoryRef(@PathVariable String categoryRef) {
+        try {
+            List<Product> products = productService.getProductsByCategoryRef(categoryRef);
+            if (products.isEmpty()) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new CommonApiResponse("No products available for the specified category ", null));
+            }
+            List<ProductDto> convertedProducts = productService.getConvertedProducts(products);
+            return  ResponseEntity.ok(new CommonApiResponse("success", convertedProducts));
+        } catch (Exception e) {
+            return ResponseEntity.ok(new CommonApiResponse(e.getMessage(), null));
+        }
+    }
+
+    @GetMapping("/product/count/by-brand/and-name")
+    public ResponseEntity<CommonApiResponse> countProductsByManufacturerAndTitle(@RequestParam String manufacturer, @RequestParam String title) {
+        try {
+            var productCount = productService.countProductsByManufacturerAndTitle(manufacturer, title);
+            return ResponseEntity.ok(new CommonApiResponse("Product count!", productCount));
+        } catch (Exception e) {
+            return ResponseEntity.ok(new CommonApiResponse(e.getMessage(), null));
         }
     }
 
