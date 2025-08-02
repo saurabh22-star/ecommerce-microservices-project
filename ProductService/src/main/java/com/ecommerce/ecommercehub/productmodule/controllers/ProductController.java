@@ -25,7 +25,7 @@ public class ProductController {
     @GetMapping("/")
     public String home() {
         return "Welcome to the Product Service API!";
-    }
+}
 
 
     @GetMapping("product/{productId}/details")

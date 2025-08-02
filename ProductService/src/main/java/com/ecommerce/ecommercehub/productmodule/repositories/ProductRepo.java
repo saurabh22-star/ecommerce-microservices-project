@@ -14,13 +14,13 @@ import com.ecommerce.ecommercehub.productmodule.models.Category;
 public interface ProductRepo extends JpaRepository<Product, Long> {
 
 
-   // List<Product> findByCategoryRef(String category);
+    List<Product> findByCategoryRef(String category);
 
     boolean existsByTitleAndManufacturer(String title, String manufacturer);
 
     List<Product> findByManufacturerAndTitle(String manufacturer, String title);
 
-    //List<Product> findByCategoryRefAndManufacturer(String categoryRef, String manufacturer);
+    List<Product> findByCategoryRefAndManufacturer(String categoryRef, String manufacturer);
 
     @Query("SELECT p FROM Product p WHERE LOWER(p.title) LIKE LOWER(CONCAT('%', :title, '%'))")
     List<Product> findByTitle(@Param("title") String title);

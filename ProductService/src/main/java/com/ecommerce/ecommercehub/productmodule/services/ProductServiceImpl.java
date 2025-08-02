@@ -132,8 +132,8 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public List<Product> getProductsByCategoryRefAndManufacturer(String categoryRef, String manufacturer) {
-      return null;
       //return productRepo.findByCategoryRefAndManufacturer(categoryRef, manufacturer);
+      return null;
     }
 
     @Override
