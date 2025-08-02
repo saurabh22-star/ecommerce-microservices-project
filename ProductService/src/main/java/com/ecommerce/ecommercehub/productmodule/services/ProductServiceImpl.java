@@ -63,7 +63,7 @@ public class ProductServiceImpl implements ProductService {
                 String.format("Product '%s' by brand '%s' already exists. Please update the existing product instead.", request.getTitle(), request.getManufacturer())
             );
         }
-        Category category = categoryRepo.findByName(request.getCategoryRef().getTitle());
+        Category category = categoryRepo.findByTitle(request.getCategoryRef().getTitle());
         if (category == null) {
             category = new Category(request.getCategoryRef().getTitle());
             category = categoryRepo.save(category);
@@ -89,7 +89,7 @@ public class ProductServiceImpl implements ProductService {
         existingProduct.setStockCount(request.getStockCount());
         existingProduct.setDetails(request.getDetails());
 
-        Category category = categoryRepo.findByName(request.getCategoryRef().getTitle());
+        Category category = categoryRepo.findByTitle(request.getCategoryRef().getTitle());
         existingProduct.setCategoryRef(category);
         return  existingProduct;
 
@@ -132,7 +132,8 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public List<Product> getProductsByCategoryRefAndManufacturer(String categoryRef, String manufacturer) {
-      return productRepo.findByCategoryRefAndManufacturer(categoryRef, manufacturer);
+      return null;
+      //return productRepo.findByCategoryRefAndManufacturer(categoryRef, manufacturer);
     }
 
     @Override
@@ -147,7 +148,8 @@ public class ProductServiceImpl implements ProductService {
 
      @Override
     public List<Product> getProductsByCategoryRef(String category) {
-        return productRepo.findByCategoryRef(category);
+        return null;
+        //return productRepo.findByCategoryRef(category);
     }
 
     @Override

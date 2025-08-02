@@ -21,6 +21,13 @@ public class ProductController {
 
     private final ProductService productService;
 
+
+    @GetMapping("/")
+    public String home() {
+        return "Welcome to the Product Service API!";
+    }
+
+
     @GetMapping("product/{productId}/details")
     public  ResponseEntity<CommonApiResponse> getProductById(@PathVariable Long id) {
         try {
@@ -95,7 +102,7 @@ public class ProductController {
     }
 
 
-    @GetMapping("/products/by/categoryRef-and-manufacturer")
+    /*@GetMapping("/products/by/categoryRef-and-manufacturer")
     public ResponseEntity<CommonApiResponse> fetchProductsByCategoryRefAndManufacturer(@RequestParam String categoryRef, @RequestParam String manufacturer) {
         try {
             List<Product> productList = productService.getProductsByCategoryRefAndManufacturer(categoryRef, manufacturer);
@@ -109,7 +116,7 @@ public class ProductController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(new CommonApiResponse("Failed to fetch products: " + ex.getMessage(), null));
         }
-    }
+    }*/
 
 
     @GetMapping("/products/{title}/manufacturer")

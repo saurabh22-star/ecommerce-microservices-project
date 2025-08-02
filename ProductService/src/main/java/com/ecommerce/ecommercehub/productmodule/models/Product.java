@@ -23,7 +23,7 @@ public class Product extends BaseModel {
     private String details;
 
     @ManyToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "cat_id")
+    @JoinColumn(name = "category_id")
     private Category categoryRef;
 
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
