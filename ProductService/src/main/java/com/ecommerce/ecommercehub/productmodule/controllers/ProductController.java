@@ -2,17 +2,20 @@ package com.ecommerce.ecommercehub.productmodule.controllers;
 
 import com.ecommerce.ecommercehub.productmodule.dtos.ProductRequestDto;
 import com.ecommerce.ecommercehub.productmodule.dtos.ProductDto;
-import com.ecommerce.ecommercehub.productmodule.exceptions.ProductAlreadyExistsException;
 import com.ecommerce.ecommercehub.productmodule.models.Product;
 import com.ecommerce.ecommercehub.productmodule.services.ProductService;
 import com.ecommerce.ecommercehub.utility.dtos.CommonApiResponse;
 import com.ecommerce.ecommercehub.utility.exceptions.ResourceNotFoundException;
+
 import lombok.RequiredArgsConstructor;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+
+import com.ecommerce.ecommercehub.productmodule.exceptions.DuplicateResourceException;
 
 @RestController
 @RequiredArgsConstructor
@@ -55,7 +58,7 @@ public class ProductController {
             Product createdProduct = productService.addProduct(request);
             ProductDto productDto = productService.convertToDto(createdProduct);
             return ResponseEntity.ok(new CommonApiResponse("Product added successfully!", productDto));
-        } catch (ProductAlreadyExistsException ex) {
+        } catch (DuplicateResourceException ex) {
             return ResponseEntity.status(HttpStatus.CONFLICT)
                     .body(new CommonApiResponse(ex.getMessage(), null));
         }

@@ -17,4 +17,14 @@ public interface CategoryService {
 
     public List<Category> getAllCategories();
 
+    public Category createCategory(Category category);
+
+    public Category getCategoryById(Long categoryId);
+
+    public Category getCategoryByTitle(String title);
+
+    public void deleteCategoryById(Long categoryId);
+
+    public Category updateCategory(Category category, Long categoryId);
+
 }

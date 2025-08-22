@@ -28,4 +28,6 @@ public class Category extends BaseModel {
     public Category(String title) {
         this.title = title;
     }
+
+
 }

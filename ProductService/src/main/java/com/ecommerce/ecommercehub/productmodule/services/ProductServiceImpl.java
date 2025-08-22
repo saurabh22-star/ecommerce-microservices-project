@@ -3,7 +3,6 @@ package com.ecommerce.ecommercehub.productmodule.services;
 import com.ecommerce.ecommercehub.productmodule.dtos.ProductRequestDto;
 import com.ecommerce.ecommercehub.productmodule.dtos.ProductDto;
 import com.ecommerce.ecommercehub.productmodule.dtos.ProductImageDto;
-import com.ecommerce.ecommercehub.productmodule.exceptions.ProductAlreadyExistsException;
 import com.ecommerce.ecommercehub.productmodule.models.Category;
 import com.ecommerce.ecommercehub.productmodule.models.Image;
 import com.ecommerce.ecommercehub.productmodule.models.Product;
@@ -11,13 +10,16 @@ import com.ecommerce.ecommercehub.productmodule.repositories.CategoryRepo;
 import com.ecommerce.ecommercehub.productmodule.repositories.ImageRepo;
 import com.ecommerce.ecommercehub.productmodule.repositories.ProductRepo;
 import com.ecommerce.ecommercehub.utility.exceptions.ResourceNotFoundException;
+
 import lombok.RequiredArgsConstructor;
+
 import org.springframework.stereotype.Service;
 import org.modelmapper.ModelMapper;
 
-
 import java.util.List;
 import java.util.Optional;
+
+import com.ecommerce.ecommercehub.productmodule.exceptions.DuplicateResourceException;
 
 @Service
 @RequiredArgsConstructor
@@ -59,7 +61,7 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public Product addProduct(ProductRequestDto request) {
         if (productExists(request.getTitle(), request.getManufacturer())) {
-            throw new ProductAlreadyExistsException(
+            throw new DuplicateResourceException(
                 String.format("Product '%s' by brand '%s' already exists. Please update the existing product instead.", request.getTitle(), request.getManufacturer())
             );
         }
