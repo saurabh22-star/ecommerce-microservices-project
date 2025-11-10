@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.userservice.dtos.ApiResponse;
 import com.userservice.dtos.UserDTO;
 import com.userservice.dtos.UserResponse;
-import com.userservice.services.UserDetailsService;
+import com.userservice.services.UserDetailService;
 
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
@@ -30,10 +30,10 @@ public class UserDetailsController {
     private static final Logger logger = LoggerFactory.getLogger(UserDetailsController.class);
     private static final String CACHE_KEY_PREFIX = "getUserById_";
 
-    private final UserDetailsService userService;
+    private final UserDetailService userService;
     private final RedisTemplate<String, Object> redisTemplate;
 
-    public UserDetailsController(UserDetailsService userService, RedisTemplate<String, Object> redisTemplate) {
+    public UserDetailsController(UserDetailService userService, RedisTemplate<String, Object> redisTemplate) {
         this.userService = userService;
         this.redisTemplate = redisTemplate;
     }

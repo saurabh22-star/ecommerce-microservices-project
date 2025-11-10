@@ -6,7 +6,7 @@ import com.userservice.dtos.UserDTO;
 import com.userservice.dtos.UserResponse;
 import com.userservice.entities.User;
 
-public interface UserDetailsService {
+public interface UserDetailService {
 
     UserDTO registerUser(UserDTO userDTO);
 	
