@@ -10,7 +10,6 @@ import org.slf4j.LoggerFactory;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 import com.userservice.services.AddressService;
 import com.userservice.dtos.AddressDTO;
 import com.userservice.entities.Address;
