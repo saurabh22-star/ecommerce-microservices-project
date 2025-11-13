@@ -1,15 +1,14 @@
 package com.ecommerce.ecommercehub.productmodule.repositories;
 
-import com.ecommerce.ecommercehub.productmodule.models.Product;
-
 import java.util.List;
-import java.util.Locale;
+
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
-import com.ecommerce.ecommercehub.productmodule.models.Category;
+
+import com.ecommerce.ecommercehub.productmodule.entities.Product;
 
 public interface ProductRepo extends JpaRepository<Product, Long> {
 

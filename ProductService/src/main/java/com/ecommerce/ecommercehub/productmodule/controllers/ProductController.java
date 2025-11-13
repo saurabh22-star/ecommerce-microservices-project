@@ -1,14 +1,19 @@
 package com.ecommerce.ecommercehub.productmodule.controllers;
 
 import com.ecommerce.ecommercehub.productmodule.dtos.ProductRequestDto;
-import com.ecommerce.ecommercehub.productmodule.dtos.ProductDto;
-import com.ecommerce.ecommercehub.productmodule.models.Product;
+import com.ecommerce.ecommercehub.productmodule.dtos.ProductResponseDTO;
+import com.ecommerce.ecommercehub.productmodule.entities.Product;
+import com.ecommerce.ecommercehub.productmodule.config.AppConstants;
+import com.ecommerce.ecommercehub.productmodule.dtos.ProductDTO;
 import com.ecommerce.ecommercehub.productmodule.services.ProductService;
 import com.ecommerce.ecommercehub.utility.dtos.CommonApiResponse;
 import com.ecommerce.ecommercehub.utility.exceptions.ResourceNotFoundException;
 
-import lombok.RequiredArgsConstructor;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -18,11 +23,15 @@ import java.util.List;
 import com.ecommerce.ecommercehub.productmodule.exceptions.DuplicateResourceException;
 
 @RestController
-@RequiredArgsConstructor
-@RequestMapping("/products")
+@RequestMapping("/api")
+@SecurityRequirement(name = "E-Commerce Application")
 public class ProductController {
 
+    @Autowired
     private final ProductService productService;
+
+    private static final Logger log = LoggerFactory.getLogger(ProductController.class);
+
 
 
     @GetMapping("/")
@@ -31,7 +40,7 @@ public class ProductController {
 }
 
 
-    @GetMapping("product/{productId}/details")
+  /*   @GetMapping("product/{productId}/details")
     public  ResponseEntity<CommonApiResponse> getProductById(@PathVariable Long id) {
         try {
             Product product = productService.getProductById(id);
@@ -40,14 +49,47 @@ public class ProductController {
         } catch (ResourceNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new CommonApiResponse(e.getMessage(), null));
         }
+    } */
+
+    @GetMapping("/public/products")
+    public ResponseEntity<ProductResponseDTO> fetchAllProducts(
+            @RequestParam(name = "pageNumber", defaultValue = AppConstants.PAGE_NUMBER, required = false) Integer page,
+            @RequestParam(name = "pageSize", defaultValue = AppConstants.PAGE_SIZE, required = false) Integer size,
+            @RequestParam(name = "sortBy", defaultValue = AppConstants.SORT_PRODUCTS_BY, required = false) String sortField,
+            @RequestParam(name = "sortOrder", defaultValue = AppConstants.SORT_DIR, required = false) String order) {
+        log.info("Fetching all products");
+        ProductResponseDTO response = productService.getAllProducts(page, size, sortField, order);
+        log.info("Response",response);
+        return new ResponseEntity<>(response, HttpStatus.FOUND);
     }
 
-    @GetMapping("/all")
-    public ResponseEntity<CommonApiResponse> getAllProducts() {
-        List<Product> products = productService.getAllProducts();
-        List<ProductDto> convertedProducts = productService.getConvertedProducts(products);
 
-        return  ResponseEntity.ok(new CommonApiResponse("success", convertedProducts));
+    @GetMapping("/public/categories/{categoryId}/products")
+    public ResponseEntity<ProductResponseDTO> fetchProductsByCategory(
+            @PathVariable Long categoryId,
+            @RequestParam(name = "pageNumber", defaultValue = AppConstants.PAGE_NUMBER, required = false) Integer page,
+            @RequestParam(name = "pageSize", defaultValue = AppConstants.PAGE_SIZE, required = false) Integer size,
+            @RequestParam(name = "sortBy", defaultValue = AppConstants.SORT_PRODUCTS_BY, required = false) String sortField,
+            @RequestParam(name = "sortOrder", defaultValue = AppConstants.SORT_DIR, required = false) String order) {
+        log.info("Fetching products for category {}", categoryId);
+        ProductResponseDTO response = productService.searchProductByCategory(categoryId, page, size, sortField, order);
+        log.info("Response", response);
+        return new ResponseEntity<>(response, HttpStatus.FOUND);
+    }
+
+
+
+    @GetMapping("/public/products/keyword/{keyword}")
+    public ResponseEntity<ProductResponseDTO> searchProductsByKeyword(
+            @PathVariable String keyword,
+            @RequestParam(name = "pageNumber", defaultValue = AppConstants.PAGE_NUMBER, required = false) Integer page,
+            @RequestParam(name = "pageSize", defaultValue = AppConstants.PAGE_SIZE, required = false) Integer size,
+            @RequestParam(name = "sortBy", defaultValue = AppConstants.SORT_PRODUCTS_BY, required = false) String sortField,
+            @RequestParam(name = "sortOrder", defaultValue = AppConstants.SORT_DIR, required = false) String order) {
+        log.info("Searching products with keyword: {}", keyword);
+        ProductResponseDTO response = productService.searchProductByKeyword(keyword, page, size, sortField, order);
+        log.info("Response", response);
+        return new ResponseEntity<>(response, HttpStatus.FOUND);
     }
 
 
@@ -56,7 +98,7 @@ public class ProductController {
     public ResponseEntity<CommonApiResponse> addProduct(@RequestBody ProductRequestDto request) {
         try {
             Product createdProduct = productService.addProduct(request);
-            ProductDto productDto = productService.convertToDto(createdProduct);
+            ProductDTO productDto = productService.convertToDto(createdProduct);
             return ResponseEntity.ok(new CommonApiResponse("Product added successfully!", productDto));
         } catch (DuplicateResourceException ex) {
             return ResponseEntity.status(HttpStatus.CONFLICT)
@@ -69,7 +111,7 @@ public class ProductController {
     public ResponseEntity<CommonApiResponse> updateProduct(@RequestBody ProductRequestDto updateRequest, @PathVariable Long productId) {
         try {
             Product updatedProduct = productService.updateProduct(updateRequest, productId);
-            ProductDto updatedProductDto = productService.convertToDto(updatedProduct);
+            ProductDTO updatedProductDto = productService.convertToDto(updatedProduct);
             return ResponseEntity.ok(new CommonApiResponse("Product updated successfully!", updatedProductDto));
         } catch (ResourceNotFoundException ex) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
@@ -96,7 +138,7 @@ public class ProductController {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND)
                         .body(new CommonApiResponse("No products found for the given manufacturer and title.", null));
             }
-            List<ProductDto> productDtos = productService.getConvertedProducts(productList);
+            List<ProductDTO> productDtos = productService.getConvertedProducts(productList);
             return ResponseEntity.ok(new CommonApiResponse("Products retrieved successfully.", productDtos));
         } catch (Exception ex) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
@@ -130,7 +172,7 @@ public class ProductController {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND)
                         .body(new CommonApiResponse("No products found with the specified title.", null));
             }
-            List<ProductDto> productDtos = productService.getConvertedProducts(productList);
+            List<ProductDTO> productDtos = productService.getConvertedProducts(productList);
             return ResponseEntity.ok(new CommonApiResponse("Products retrieved successfully.", productDtos));
         } catch (Exception ex) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
@@ -146,7 +188,7 @@ public class ProductController {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND)
                         .body(new CommonApiResponse("No products available for the specified manufacturer.", null));
             }
-            List<ProductDto> productDtoList = productService.getConvertedProducts(productList);
+            List<ProductDTO> productDtoList = productService.getConvertedProducts(productList);
             return ResponseEntity.ok(new CommonApiResponse("Products fetched successfully.", productDtoList));
         } catch (Exception ex) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
@@ -161,7 +203,7 @@ public class ProductController {
             if (products.isEmpty()) {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new CommonApiResponse("No products available for the specified category ", null));
             }
-            List<ProductDto> convertedProducts = productService.getConvertedProducts(products);
+            List<ProductDTO> convertedProducts = productService.getConvertedProducts(products);
             return  ResponseEntity.ok(new CommonApiResponse("success", convertedProducts));
         } catch (Exception e) {
             return ResponseEntity.ok(new CommonApiResponse(e.getMessage(), null));

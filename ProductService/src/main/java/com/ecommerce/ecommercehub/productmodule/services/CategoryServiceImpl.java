@@ -2,8 +2,6 @@ package com.ecommerce.ecommercehub.productmodule.services;
 
 import java.util.List;
 
-import com.ecommerce.ecommercehub.productmodule.models.Category;
-
 /**
  *
  * @author Saurabh
@@ -12,6 +10,7 @@ import com.ecommerce.ecommercehub.productmodule.models.Category;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.ecommerce.ecommercehub.productmodule.entities.Category;
 import com.ecommerce.ecommercehub.productmodule.exceptions.DuplicateResourceException;
 import com.ecommerce.ecommercehub.productmodule.repositories.CategoryRepo;
 import com.ecommerce.ecommercehub.utility.exceptions.ResourceNotFoundException;

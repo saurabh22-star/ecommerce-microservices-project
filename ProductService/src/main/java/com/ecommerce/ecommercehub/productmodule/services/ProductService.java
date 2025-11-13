@@ -1,22 +1,30 @@
 package com.ecommerce.ecommercehub.productmodule.services;
 
+import com.ecommerce.ecommercehub.productmodule.dtos.ProductDTO;
 import com.ecommerce.ecommercehub.productmodule.dtos.ProductRequestDto;
-import com.ecommerce.ecommercehub.productmodule.dtos.ProductDto;
-import com.ecommerce.ecommercehub.productmodule.models.Product;
+import com.ecommerce.ecommercehub.productmodule.dtos.ProductResponseDTO;
+import com.ecommerce.ecommercehub.productmodule.entities.Product;
+
 
 import java.util.List;
 
 
 public interface ProductService {
 
-    Product getProductById(Long id);
+    //Product getProductById(Long id);
 
-    List<Product> getAllProducts();
+    ProductResponseDTO getAllProducts(Integer pageNumber, Integer pageSize, String sortBy, String sortOrder);
 
+    ProductResponseDTO searchProductByCategory(Long categoryId, Integer pageNumber, Integer pageSize, String sortBy,
+                                        String sortOrder);
 
-    List<ProductDto> getConvertedProducts(List<Product> products);
+    ProductResponseDTO searchProductByKeyword(String keyword, Integer pageNumber, Integer pageSize, String sortBy,
+                                              String sortOrder);
+                                    
 
-    ProductDto convertToDto(Product product);
+    List<ProductDTO> getConvertedProducts(List<Product> products);
+
+    ProductDTO convertToDto(Product product);
 
     Product addProduct(ProductRequestDto request);
 

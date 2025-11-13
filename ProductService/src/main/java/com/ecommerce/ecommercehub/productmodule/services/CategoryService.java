@@ -7,7 +7,7 @@ package com.ecommerce.ecommercehub.productmodule.services;
 
 import java.util.List;
 
-import com.ecommerce.ecommercehub.productmodule.models.Category;
+import com.ecommerce.ecommercehub.productmodule.entities.Category;
 
 /**
  *

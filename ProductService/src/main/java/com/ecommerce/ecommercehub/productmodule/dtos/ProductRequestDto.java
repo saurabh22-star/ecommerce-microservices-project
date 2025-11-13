@@ -1,9 +1,10 @@
 package com.ecommerce.ecommercehub.productmodule.dtos;
 
-import com.ecommerce.ecommercehub.productmodule.models.Category;
 import lombok.Data;
 
 import java.math.BigDecimal;
+
+import com.ecommerce.ecommercehub.productmodule.entities.Category;
 
 @Data
 public class ProductRequestDto {

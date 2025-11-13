@@ -6,7 +6,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 
-import com.ecommerce.ecommercehub.productmodule.models.Category;
 import com.ecommerce.ecommercehub.utility.dtos.CommonApiResponse;
 
 
@@ -25,6 +24,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.ecommerce.ecommercehub.productmodule.entities.Category;
 import com.ecommerce.ecommercehub.productmodule.exceptions.DuplicateResourceException;
 import com.ecommerce.ecommercehub.productmodule.services.CategoryService;
 import com.ecommerce.ecommercehub.utility.exceptions.ResourceNotFoundException;

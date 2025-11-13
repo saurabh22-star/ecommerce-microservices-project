@@ -1,25 +1,31 @@
 package com.ecommerce.ecommercehub.productmodule.services;
 
 import com.ecommerce.ecommercehub.productmodule.dtos.ProductRequestDto;
-import com.ecommerce.ecommercehub.productmodule.dtos.ProductDto;
+import com.ecommerce.ecommercehub.productmodule.dtos.ProductResponseDTO;
+import com.ecommerce.ecommercehub.productmodule.entities.Category;
+import com.ecommerce.ecommercehub.productmodule.entities.Image;
+import com.ecommerce.ecommercehub.productmodule.entities.Product;
+import com.ecommerce.ecommercehub.productmodule.dtos.ProductDTO;
 import com.ecommerce.ecommercehub.productmodule.dtos.ProductImageDto;
-import com.ecommerce.ecommercehub.productmodule.models.Category;
-import com.ecommerce.ecommercehub.productmodule.models.Image;
-import com.ecommerce.ecommercehub.productmodule.models.Product;
 import com.ecommerce.ecommercehub.productmodule.repositories.CategoryRepo;
 import com.ecommerce.ecommercehub.productmodule.repositories.ImageRepo;
 import com.ecommerce.ecommercehub.productmodule.repositories.ProductRepo;
-import com.ecommerce.ecommercehub.utility.exceptions.ResourceNotFoundException;
 
 import lombok.RequiredArgsConstructor;
-
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.modelmapper.ModelMapper;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
+import com.ecommerce.ecommercehub.productmodule.exceptions.APIException;
 import com.ecommerce.ecommercehub.productmodule.exceptions.DuplicateResourceException;
+import com.ecommerce.ecommercehub.productmodule.exceptions.ResourceNotFoundException;
 
 @Service
 @RequiredArgsConstructor
@@ -31,16 +37,66 @@ public class ProductServiceImpl implements ProductService {
     private final ImageRepo imageRepo;
     private final CategoryRepo categoryRepo;
 
-    @Override
+/*     @Override
     public Product getProductById(Long id) {
         return productRepo.findById(id)
                 .orElseThrow(()-> new ResourceNotFoundException("Product not found!"));
-    }
+    } */
 
     @Override
-    public List<Product> getAllProducts() {
-        return productRepo.findAll();
+	public ProductResponseDTO getAllProducts(Integer pageNo, Integer pageSize, String sortBy, String sortOrder) {
+
+		Sort sortByAndOrder = sortOrder.equalsIgnoreCase("asc") ? Sort.by(sortBy).ascending()
+				: Sort.by(sortBy).descending();
+
+		Pageable pageDetails = PageRequest.of(pageNo, pageSize, sortByAndOrder);
+
+		Page<Product> pageProducts = productRepo.findAll(pageDetails);
+
+		List<Product> products = pageProducts.getContent();
+
+		return getProductResponseDTO(pageProducts, products);
+	}
+
+    @Override
+    public ProductResponseDTO searchProductByCategory(Long catId, Integer pageIdx, Integer pageLimit, String sortField, String sortOrder) {
+
+    Category foundCategory = categoryRepo.findById(catId)
+            .orElseThrow(() -> new ResourceNotFoundException("Category", "ID", catId));
+
+    Sort sort = sortOrder.equalsIgnoreCase("asc") ? Sort.by(sortField).ascending() : Sort.by(sortField).descending();
+
+    Pageable pageable = PageRequest.of(pageIdx, pageLimit, sort);
+
+    Page<Product> productPage = productRepo.findAll(pageable);
+
+    List<Product> productList = productPage.getContent();
+
+    if (productList.isEmpty()) {
+        throw new APIException("No products available in category: " + foundCategory.getCategoryName());
     }
+
+    return getProductResponseDTO(productPage, productList);
+    }
+
+    
+
+    private ProductResponseDTO getProductResponseDTO(Page<Product> pageProducts, List<Product> products) {
+		List<ProductDTO> productDTOs = products.stream().map(p -> modelMapper.map(p, ProductDTO.class))
+				.collect(Collectors.toList());
+
+		ProductResponseDTO productResponseDTO = new ProductResponseDTO();
+
+		productResponseDTO.setContent(productDTOs);
+		productResponseDTO.setPageNumber(pageProducts.getNumber());
+		productResponseDTO.setPageSize(pageProducts.getSize());
+		productResponseDTO.setTotalElements(pageProducts.getTotalElements());
+		productResponseDTO.setTotalPages(pageProducts.getTotalPages());
+		productResponseDTO.setLastPage(pageProducts.isLast());
+
+		return productResponseDTO;
+	}
+    
 
     @Override
     public List<ProductDto> getConvertedProducts(List<Product> products) {

@@ -1,4 +1,4 @@
-package com.ecommerce.ecommercehub.productmodule.models;
+package com.ecommerce.ecommercehub.productmodule.entities;
 
 
 import com.ecommerce.ecommercehub.utility.models.BaseModel;
