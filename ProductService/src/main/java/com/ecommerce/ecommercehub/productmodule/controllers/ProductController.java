@@ -1,15 +1,12 @@
 package com.ecommerce.ecommercehub.productmodule.controllers;
 
-import com.ecommerce.ecommercehub.productmodule.dtos.ProductRequestDto;
 import com.ecommerce.ecommercehub.productmodule.dtos.ProductResponseDTO;
 import com.ecommerce.ecommercehub.productmodule.entities.Product;
 import com.ecommerce.ecommercehub.productmodule.config.AppConstants;
 import com.ecommerce.ecommercehub.productmodule.dtos.ProductDTO;
 import com.ecommerce.ecommercehub.productmodule.services.ProductService;
-import com.ecommerce.ecommercehub.utility.dtos.CommonApiResponse;
-import com.ecommerce.ecommercehub.utility.exceptions.ResourceNotFoundException;
-
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import jakarta.validation.Valid;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,10 +14,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
-import java.util.List;
-
-import com.ecommerce.ecommercehub.productmodule.exceptions.DuplicateResourceException;
+import java.io.IOException;
 
 @RestController
 @RequestMapping("/api")
@@ -28,7 +24,7 @@ import com.ecommerce.ecommercehub.productmodule.exceptions.DuplicateResourceExce
 public class ProductController {
 
     @Autowired
-    private final ProductService productService;
+    private ProductService productService;
 
     private static final Logger log = LoggerFactory.getLogger(ProductController.class);
 
@@ -93,44 +89,45 @@ public class ProductController {
     }
 
 
-    //@PreAuthorize("hasRole('ROLE_ADMIN')")
-    @PostMapping("/add")
-    public ResponseEntity<CommonApiResponse> addProduct(@RequestBody ProductRequestDto request) {
-        try {
-            Product createdProduct = productService.addProduct(request);
-            ProductDTO productDto = productService.convertToDto(createdProduct);
-            return ResponseEntity.ok(new CommonApiResponse("Product added successfully!", productDto));
-        } catch (DuplicateResourceException ex) {
-            return ResponseEntity.status(HttpStatus.CONFLICT)
-                    .body(new CommonApiResponse(ex.getMessage(), null));
-        }
+    @PostMapping("/admin/categories/{categoryId}/product")
+    public ResponseEntity<ProductDTO> createProduct(
+            @Valid @RequestBody Product product,
+            @PathVariable Long categoryId) {
+        log.info("Creating new product in category {}", categoryId);
+        ProductDTO created = productService.addProduct(categoryId, product);
+        log.info("Created ", created);
+        return new ResponseEntity<>(created, HttpStatus.CREATED);
     }
 
-    //@PreAuthorize("hasRole('ROLE_ADMIN')")
-    @PutMapping("/product/{productId}/update")
-    public ResponseEntity<CommonApiResponse> updateProduct(@RequestBody ProductRequestDto updateRequest, @PathVariable Long productId) {
-        try {
-            Product updatedProduct = productService.updateProduct(updateRequest, productId);
-            ProductDTO updatedProductDto = productService.convertToDto(updatedProduct);
-            return ResponseEntity.ok(new CommonApiResponse("Product updated successfully!", updatedProductDto));
-        } catch (ResourceNotFoundException ex) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body(new CommonApiResponse(ex.getMessage(), null));
-        }
+    @PutMapping("/admin/products/{productId}")
+    public ResponseEntity<ProductDTO> modifyProduct(
+            @RequestBody Product product,
+            @PathVariable Long productId) {
+        log.info("Modifying product with ID {}", productId);
+        ProductDTO updated = productService.updateProduct(productId, product);
+        log.info("updated", updated);
+        return new ResponseEntity<>(updated, HttpStatus.OK);
     }
 
-    //@PreAuthorize("hasRole('ROLE_ADMIN')")
-    @DeleteMapping("/product/{productId}/delete")
-    public ResponseEntity<CommonApiResponse> deleteProduct(@PathVariable Long productId) {
-        try {
-            productService.deleteProductById(productId);
-            return ResponseEntity.ok(new CommonApiResponse("Product deleted successfully!", productId));
-        } catch (ResourceNotFoundException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new CommonApiResponse(e.getMessage(), null));
-        }
+    @PutMapping("/admin/products/{productId}/image")
+    public ResponseEntity<ProductDTO> changeProductImage(
+            @PathVariable Long productId,
+            @RequestParam("image") MultipartFile image) throws IOException {
+        log.info("Updating image for product {}", productId);
+        ProductDTO updated = productService.updateProductImage(productId, image);
+        log.info("updated",updated);
+        return new ResponseEntity<>(updated, HttpStatus.OK);
     }
 
-    @GetMapping("/products/by/manufacturer-and-title")
+    @DeleteMapping("/admin/products/{productId}")
+    public ResponseEntity<String> removeProduct(@PathVariable Long productId) {
+        log.info("Removing product with ID {}", productId);
+        String result = productService.deleteProduct(productId);
+        log.info(result);
+        return new ResponseEntity<>(result, HttpStatus.OK);
+    }
+
+    /* @GetMapping("/products/by/manufacturer-and-title")
     public ResponseEntity<CommonApiResponse> fetchProductsByManufacturerAndTitle(@RequestParam String manufacturer, @RequestParam String title) {
         try {
             List<Product> productList = productService.getProductsByManufacturerAndTitle(manufacturer, title);
@@ -144,7 +141,7 @@ public class ProductController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(new CommonApiResponse("An error occurred: " + ex.getMessage(), null));
         }
-    }
+    } */
 
 
     /*@GetMapping("/products/by/categoryRef-and-manufacturer")
@@ -164,7 +161,7 @@ public class ProductController {
     }*/
 
 
-    @GetMapping("/products/{title}/manufacturer")
+    /* @GetMapping("/products/{title}/manufacturer")
     public ResponseEntity<CommonApiResponse> fetchProductsByTitle(@PathVariable String title) {
         try {
             List<Product> productList = productService.getProductsByTitle(title);
@@ -218,7 +215,7 @@ public class ProductController {
         } catch (Exception e) {
             return ResponseEntity.ok(new CommonApiResponse(e.getMessage(), null));
         }
-    }
+    } */
 
 
 }

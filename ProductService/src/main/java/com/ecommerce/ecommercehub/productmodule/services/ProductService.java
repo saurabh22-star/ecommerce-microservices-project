@@ -5,13 +5,13 @@ import com.ecommerce.ecommercehub.productmodule.dtos.ProductRequestDto;
 import com.ecommerce.ecommercehub.productmodule.dtos.ProductResponseDTO;
 import com.ecommerce.ecommercehub.productmodule.entities.Product;
 
-
+import java.io.IOException;
 import java.util.List;
+
+import org.springframework.web.multipart.MultipartFile;
 
 
 public interface ProductService {
-
-    //Product getProductById(Long id);
 
     ProductResponseDTO getAllProducts(Integer pageNumber, Integer pageSize, String sortBy, String sortOrder);
 
@@ -20,15 +20,25 @@ public interface ProductService {
 
     ProductResponseDTO searchProductByKeyword(String keyword, Integer pageNumber, Integer pageSize, String sortBy,
                                               String sortOrder);
+    
+    ProductDTO addProduct(Long categoryId, Product product);
+
+    ProductDTO updateProduct(Long productId, Product product);
+
+    ProductDTO updateProductImage(Long productId, MultipartFile image) throws IOException;
+
+    String deleteProduct(Long productId);
+                                                
+/* 
                                     
 
     List<ProductDTO> getConvertedProducts(List<Product> products);
 
     ProductDTO convertToDto(Product product);
 
-    Product addProduct(ProductRequestDto request);
+    
 
-    Product updateProduct(ProductRequestDto updateRequest, Long productId);
+   
 
     void deleteProductById(Long productId);
 
@@ -42,5 +52,5 @@ public interface ProductService {
 
     public List<Product> getProductsByCategoryRef(String categoryRef);
 
-    Long countProductsByManufacturerAndTitle(String manufacturer, String title);
+    Long countProductsByManufacturerAndTitle(String manufacturer, String title); */
 }
