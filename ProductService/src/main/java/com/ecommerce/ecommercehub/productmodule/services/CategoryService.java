@@ -7,6 +7,8 @@ package com.ecommerce.ecommercehub.productmodule.services;
 
 import java.util.List;
 
+import com.ecommerce.ecommercehub.productmodule.dtos.CategoryDTO;
+import com.ecommerce.ecommercehub.productmodule.dtos.CategoryResponseDTO;
 import com.ecommerce.ecommercehub.productmodule.entities.Category;
 
 /**
@@ -15,16 +17,12 @@ import com.ecommerce.ecommercehub.productmodule.entities.Category;
  */
 public interface CategoryService {
 
-    public List<Category> getAllCategories();
+    CategoryDTO addCategory(Category category);
 
-    public Category createCategory(Category category);
+	CategoryResponseDTO fetchCategories(Integer pageNumber, Integer pageSize, String sortBy, String sortOrder);
 
-    public Category getCategoryById(Long categoryId);
+	CategoryDTO updateCategory(Category category, Long categoryId);
 
-    public Category getCategoryByTitle(String title);
-
-    public void deleteCategoryById(Long categoryId);
-
-    public Category updateCategory(Category category, Long categoryId);
+	String deleteCategory(Long categoryId);
 
 }
