@@ -20,10 +20,10 @@ import org.springframework.stereotype.Service;
 import com.ecommerce.ecommercehub.productmodule.dtos.CategoryDTO;
 import com.ecommerce.ecommercehub.productmodule.dtos.CategoryResponseDTO;
 import com.ecommerce.ecommercehub.productmodule.entities.Category;
+import com.ecommerce.ecommercehub.productmodule.entities.Product;
 import com.ecommerce.ecommercehub.productmodule.exceptions.APIException;
-import com.ecommerce.ecommercehub.productmodule.exceptions.DuplicateResourceException;
+import com.ecommerce.ecommercehub.productmodule.exceptions.ResourceNotFoundException;
 import com.ecommerce.ecommercehub.productmodule.repositories.CategoryRepo;
-import com.ecommerce.ecommercehub.utility.exceptions.ResourceNotFoundException;
 
 import lombok.RequiredArgsConstructor;
 
@@ -36,6 +36,9 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Autowired
 	private ModelMapper modelMapper;
+
+    @Autowired
+	private ProductService productService;
 
 
     @Override
@@ -80,62 +83,30 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
-    public CategoryDTO updateCategory(Category category, Long categoryId) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'updateCategory'");
+    public CategoryDTO modifyCategory(Category updatedCategory, Long id) {
+        categoryRepo.findById(id)
+            .orElseThrow(() -> new ResourceNotFoundException("Category not found", "id", id));
+
+        updatedCategory.setCategoryId(id);
+
+        Category persistedCategory = categoryRepo.save(updatedCategory);
+
+        return modelMapper.map(persistedCategory, CategoryDTO.class);
     }
 
     @Override
-    public String deleteCategory(Long categoryId) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'deleteCategory'");
+    public String removeCategory(Long id) {
+        Category foundCategory = categoryRepo.findById(id)
+            .orElseThrow(() -> new ResourceNotFoundException("Category not found", "id", id));
+
+        List<Product> relatedProducts = foundCategory.getProductList();
+
+        relatedProducts.forEach(prod -> productService.deleteProduct(prod.getProductId()));
+
+        categoryRepo.delete(foundCategory);
+
+        return "Category with id: " + id + " has been removed successfully.";
     }
 
-
-/* 
-    @Override
-    public List<Category> getAllCategories() {
-        return categoryRepo.findAll();
-    }
-
-    @Override
-    public Category createCategory(Category category){
-        if (categoryRepo.existsByTitle(category.getTitle())) {
-            throw new DuplicateResourceException("Category with title '" + category.getTitle() + "' already exists.");
-        }
-        return categoryRepo.save(category);
-    }
-
-    @Override
-    public Category getCategoryById(Long categoryId) {
-        return categoryRepo.findById(categoryId)
-                .orElseThrow(() -> new ResourceNotFoundException("Category not found with id: " + categoryId));
-    }
-
-    @Override
-    public Category getCategoryByTitle(String title) {
-        Category category = categoryRepo.findByTitle(title);
-        if (category == null) {
-            throw new ResourceNotFoundException("Category not found with title: " + title);
-        }
-        return category;
-    }
-
-    @Override
-    public void deleteCategoryById(Long categoryId) {
-        if (!categoryRepo.existsById(categoryId)) {
-            throw new ResourceNotFoundException("Category not found with id: " + categoryId);
-        }
-        categoryRepo.deleteById(categoryId);
-    }
-
-    @Override
-    public Category updateCategory(Category category, Long categoryId) {
-        if (!categoryRepo.existsById(categoryId)) {
-            throw new ResourceNotFoundException("Category not found with id: " + categoryId);
-        }
-        category.setId(categoryId);
-        return categoryRepo.save(category);
-    } */
     
     }
