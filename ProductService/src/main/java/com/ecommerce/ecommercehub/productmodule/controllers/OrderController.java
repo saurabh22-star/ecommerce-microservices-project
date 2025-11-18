@@ -10,13 +10,17 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.ecommerce.ecommercehub.productmodule.config.AppConstants;
+import com.ecommerce.ecommercehub.productmodule.config.KafkaNotificationProducerClient;
 import com.ecommerce.ecommercehub.productmodule.dtos.OrderDTO;
 import com.ecommerce.ecommercehub.productmodule.dtos.OrderResponseDTO;
+import com.ecommerce.ecommercehub.productmodule.dtos.SendNotificationMessageDTO;
 import com.ecommerce.ecommercehub.productmodule.dtos.UserDTO;
 import com.ecommerce.ecommercehub.productmodule.services.OrderService;
 import com.ecommerce.ecommercehub.productmodule.services.UserService;
@@ -33,6 +37,9 @@ public class OrderController {
 
     @Autowired
 	public UserService userService;
+
+    @Autowired
+	public KafkaNotificationProducerClient kafkaNotificationProducerClient;
 
 
     @Autowired
@@ -99,6 +106,34 @@ public class OrderController {
         redisTemplate.opsForValue().set(cacheKey, orderDetails);
         log.info("orderDetails",orderDetails);
         return new ResponseEntity<>(orderDetails, HttpStatus.FOUND);
+    }
+
+    @PostMapping("/public/users/{emailId}/carts/{cartId}/payments/{paymentMethod}/order")
+    public ResponseEntity<OrderDTO> createOrderForUser(@PathVariable String emailId, @PathVariable Long cartId, @PathVariable String paymentMethod) {
+        log.info("createOrderForUser invoked");
+        UserDTO customer = userService.getUserByEmail(emailId);
+        OrderDTO newOrder = orderService.placeOrder(customer.getUserId(), cartId, paymentMethod);
+
+        SendNotificationMessageDTO notification = new SendNotificationMessageDTO();
+        notification.setTo(customer.getEmail());
+        notification.setSubject("Your order has been placed");
+        notification.setBody("Thank you for your purchase! Order details: " + newOrder.getOrderItems().toString());
+        kafkaNotificationProducerClient.publishNotificationEvent(notification);
+
+        log.info("newOrder",newOrder);
+        return new ResponseEntity<>(newOrder, HttpStatus.CREATED);
+    }
+
+    @PutMapping("admin/users/{emailId}/orders/{orderId}/orderStatus/{orderStatus}")
+    public ResponseEntity<OrderDTO> modifyUserOrderStatus(
+            @PathVariable String emailId,
+            @PathVariable Long orderId,
+            @PathVariable String orderStatus) {
+        log.info("modifyUserOrderStatus called");
+        UserDTO customer = userService.getUserByEmail(emailId);
+        OrderDTO updatedOrder = orderService.modifyUserOrderStatus(customer.getUserId(), orderId, orderStatus);
+        log.info("updatedOrder", updatedOrder);
+        return new ResponseEntity<>(updatedOrder, HttpStatus.OK);
     }
 
 

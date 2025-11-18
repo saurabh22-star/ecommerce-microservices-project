@@ -42,4 +42,6 @@ public class Order {
 	private Double totalAmount;
 
 	private PurchaseStatus purchaseStatus;
+
+	
 }

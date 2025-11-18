@@ -17,4 +17,8 @@ public interface OrderService {
 
     OrderDTO fetchOrder(Long orderId);
 
+    OrderDTO placeOrder(Long userId, Long cartId, String paymentMethod);
+
+    OrderDTO modifyUserOrderStatus(Long userId, Long orderId, String orderStatus);
+
 }

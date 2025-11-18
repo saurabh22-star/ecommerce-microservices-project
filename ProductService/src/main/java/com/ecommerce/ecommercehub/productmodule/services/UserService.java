@@ -13,7 +13,7 @@ public class UserService {
     private RestTemplate restTemplate;
 
     public UserDTO getUserByEmail(String email){
-        return restTemplate.getForObject("http://UserServiceApplication/api/user/email/{email}", UserDTO.class, email);
+        return restTemplate.getForObject("http://UserService/api/user/email/{email}", UserDTO.class, email);
     }
 
 }
