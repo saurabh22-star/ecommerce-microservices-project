@@ -8,7 +8,6 @@ import com.ecommerce.ecommercehub.productmodule.dtos.CartDTO;
 import com.ecommerce.ecommercehub.productmodule.dtos.ProductDTO;
 import com.ecommerce.ecommercehub.productmodule.repositories.CartRepo;
 import com.ecommerce.ecommercehub.productmodule.repositories.CategoryRepo;
-import com.ecommerce.ecommercehub.productmodule.repositories.ImageRepo;
 import com.ecommerce.ecommercehub.productmodule.repositories.ProductRepo;
 
 import jakarta.transaction.Transactional;
@@ -38,8 +37,6 @@ public class ProductServiceImpl implements ProductService {
 
     @Autowired
     private ModelMapper modelMapper;
-
-    private ImageRepo imageRepo;
 
     @Autowired
     private CategoryRepo categoryRepo;

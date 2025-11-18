@@ -47,7 +47,7 @@ public class OrderController {
 
     private static final String CACHE_KEY_PREFIX = "ordersByUser_";
 
-    private static final Logger log = LoggerFactory.getLogger(CategoryController.class);
+    private static final Logger log = LoggerFactory.getLogger(OrderController.class);
 
     @GetMapping("/admin/orders")
     public ResponseEntity<OrderResponseDTO> fetchAllOrders(
